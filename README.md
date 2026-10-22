@@ -1,8 +1,16 @@
 # Auto Knowledge Base
 
-把影片連結或 Markdown 交給 AI，整理成可追溯、可分類、可搜尋的本機知識庫。
+**Give your AI agent video links or Markdown. Build your personal knowledge base with one request.**
 
-**初版以 Windows、現有 AI Agent 為主要使用方式。** 安裝環境並選定知識庫後，日常只需在 Agent 對話中貼入連結。程式負責取得、去重、狀態、驗證與儲存；Agent 負責閱讀全文、精煉與主題判斷。選用 API 模式則由你設定的模型服務完成精煉。
+After one-time setup and verification, your Agent continues content acquisition, full-text refinement, topic classification, indexing, validation and local storage in the same session. You do not need to run each stage manually. Paste links and Markdown text together, or attach a readable `.md` file; the Agent can save the source Markdown to the inbox and include it in the same task.
+
+Windows is the primary supported platform. Use an Agent that can read and write local files and execute commands. Downloads, costs or permissions may require confirmation; blocked sources are reported. Adding files alone does not start a background task. Agent mode does not require a separate Gemini API key; Gemini video backup remains disabled.
+
+**把影片連結或 Markdown 交給你的 AI Agent，一次交辦，整理成自己的知識庫。**
+
+首次設定與驗證完成後，在 Agent 對話中交辦來源，它會在同一工作階段接續取得內容、全文精煉、主題分類、更新索引、驗證與本機儲存；正常成功路徑不需要你逐階段操作。影片連結和 Markdown 文字可以一起貼，Agent 能讀取的 `.md` 附件也可先存入收件區，一併整理。
+
+初版主要支援 Windows，使用的 Agent 須能讀寫本機檔案及執行命令。需要下載、費用或權限確認時仍會詢問；來源受阻時會回報。單純放入檔案不會在背景自動執行。選用 API 模式則由你明確設定的模型服務完成精煉。
 
 不需要 Gemini Key 才能使用。Gemini 影片備援保持關閉。沒有背景服務、向量資料庫或自訂 Agent 平台。
 
@@ -27,6 +35,12 @@ flowchart LR
 ## 首次設定
 
 可以直接把 repo 連結交給可讀寫本機檔案、執行命令的 AI Agent：
+
+**English**
+
+> Install and configure https://github.com/AngusDaGG/Auto-Knowledge-Base on this computer. Read README, AGENTS.md and docs/AGENT_SETUP.md, reuse working tools, and complete the required local setup and verification. Ask before additional downloads, costs or permissions. Then help me build my knowledge base by giving you video links or Markdown documents.
+
+**繁體中文**
 
 > 請幫我在這台電腦安裝並設定 https://github.com/AngusDaGG/Auto-Knowledge-Base 。請先讀 README、AGENTS.md 和 docs/AGENT_SETUP.md，沿用可用環境，完成依賴、模型與本機驗證；需要額外下載、費用或權限時先詢問。完成後讓我能貼影片連結整理知識。
 
@@ -65,11 +79,25 @@ python -X utf8 -B auto_kb.py --workspace D:\MyKnowledge init
 
 開啟本專案，讓 Agent 讀取 [AGENTS.md](AGENTS.md)，直接交辦：
 
+**影片連結 / Video links**
+
+> Organize this video into my knowledge base, and include new files in the markdown inbox: [video link]
+
 > 整理這個影片連結到我的知識庫，並一併處理 markdown 資料夾的新文件：〔貼連結〕
+
+**同一則訊息的影片與 Markdown / Links and Markdown in one message**
+
+> Organize the video links and Markdown text or readable .md attachments in this message together. Save the source Markdown to the inbox, refine the content, classify it, update the index and validate the result: [links and Markdown]
+
+> 把這則訊息的影片連結、Markdown 文字或可讀取的 .md 附件一併整理；請先保存 Markdown 原件，再接續精煉、分類、更新索引與驗證：〔貼連結與 Markdown〕
+
+**主題搜尋 / Topic search**
+
+> Find up to three videos about product growth experiments, choose different perspectives, and turn them into knowledge cards with sources.
 
 > 找「產品成長實驗」主題至多三支影片，選擇不同觀點，整理成知識卡並附來源。
 
-第二種需要該 Agent 本身有可用的網路搜尋。預設搜尋候選最多三支、每支十分鐘內；**直接貼入的連結沒有十分鐘硬上限**。缺搜尋能力時仍可貼連結，不會偷偷啟用付費搜尋。
+主題搜尋需要該 Agent 本身有可用的網路搜尋。預設搜尋候選最多三支、每支十分鐘內；**直接貼入的連結沒有十分鐘硬上限**。缺搜尋能力時仍可貼連結，不會偷偷啟用付費搜尋。
 
 Agent 入口命令：
 
