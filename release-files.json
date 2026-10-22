@@ -14,6 +14,7 @@
     "akb_intake.py",
     "auto_kb.py",
     "docs/AGENT_GUIDE.md",
+    "docs/AGENT_SETUP.md",
     "docs/VALIDATION.md",
     "engine/PORTING.md",
     "engine/THIRD_PARTY_NOTICES.md",
@@ -60,6 +61,7 @@
     "test_kb_knowledge.py",
     "test_kb_publish.py",
     "test_kb_workflow.py",
-    "test_knowledge_base.py"
+    "test_knowledge_base.py",
+    "test_setup_doctor.py"
   ]
 }
