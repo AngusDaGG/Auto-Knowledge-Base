@@ -1,0 +1,6 @@
+{
+  "youtube": {"media_suffixes": ["googlevideo.com"], "media_hosts": []},
+  "instagram": {"media_suffixes": ["cdninstagram.com", "fbcdn.net"], "media_hosts": []},
+  "tiktok": {"media_suffixes": ["tiktok.com", "tiktokcdn.com", "tiktokcdn-us.com", "tiktokcdn-eu.com", "tiktokv.com", "tiktokv.us", "byteoversea.com", "ibytedtos.com", "muscdn.com"], "media_hosts": []},
+  "bilibili": {"media_suffixes": ["bilivideo.com", "bilivideo.cn"], "media_hosts": ["upos-hz-mirrorakam.akamaized.net"]}
+}

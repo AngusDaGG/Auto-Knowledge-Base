@@ -1,0 +1,5 @@
+# Existing engine dependencies; Python 3.12 tested. Install explicitly in your own environment.
+faster-whisper==1.2.1
+av==17.0.1
+yt-dlp==2026.8.19
+yt-dlp-ejs==0.8.0

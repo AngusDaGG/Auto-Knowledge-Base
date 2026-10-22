@@ -1,0 +1,9 @@
+{
+  "name": "auto-knowledge-base",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Local-first knowledge base with an optional installed-browser transcription engine",
+  "engines": { "node": ">=20" },
+  "scripts": { "test:engine": "node --test engine/test_browser_probe.cjs engine/test_browser_config.cjs" },
+  "optionalDependencies": { "playwright": "1.62.1" }
+}
