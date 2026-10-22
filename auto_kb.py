@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import argparse
+import importlib.machinery
 import importlib.util
 import json
 import os
@@ -69,19 +70,96 @@ def settings_for(root):
     return settings
 
 
+def _runtime_path(value, root):
+    path = Path(value).expanduser()
+    return path if path.is_absolute() else root / path
+
+
+def _package_available(name, vendor):
+    # Match the engine's vendor-first lookup without importing runtime packages.
+    try:
+        return bool((vendor and importlib.machinery.PathFinder.find_spec(name, [str(vendor)]))
+                    or importlib.util.find_spec(name))
+    except (ImportError, ValueError, OSError):
+        return False
+
+
+def _binary_available(value, root, env):
+    if Path(value).is_absolute() or os.path.dirname(value):
+        return _runtime_path(value, root).is_file()
+    return bool(shutil.which(value, path=env.get("PATH")))
+
+
 def doctor(root):
-    settings = settings_for(root)
+    initialized = flow._plain(root / "akb.json").is_file()
+    settings = settings_for(root) if initialized else default_settings()
+    from akb_intake import _settings
+    _limit, engine, _timeout = _settings(settings)
+    env = dict(os.environ)
+    env.update(engine.get("env", {}))
+    selected = engine.get("python", sys.executable)
+    selected_path = (str(_runtime_path(selected, root)) if os.path.dirname(str(selected))
+                     else shutil.which(str(selected), path=env.get("PATH")))
+    python_matches = bool(selected_path and Path(selected_path).resolve() == Path(sys.executable).resolve())
+    vendor = _runtime_path(engine["vendor_dir"], root) if engine.get("vendor_dir") else None
+    packages = {name: _package_available(name, vendor) if python_matches else None
+                for name in ("faster_whisper", "av", "ctranslate2", "yt_dlp", "yt_dlp_ejs")}
+    model_value = engine.get("model_path") or env.get("AKB_MODEL_PATH")
+    model = _runtime_path(model_value, root) if model_value else None
+    required_model = ("model.bin", "config.json", "tokenizer.json")
+    missing_model = []
+    for name in required_model:
+        try:
+            if not model or not (model / name).is_file() or (model / name).stat().st_size == 0:
+                missing_model.append(name)
+        except OSError:
+            missing_model.append(name)
+    browser_value = env.get("AKB_BROWSER_EXECUTABLE")
+    if browser_value:
+        browser = _runtime_path(browser_value, root).is_file()
+    else:
+        channel = env.get("AKB_BROWSER_CHANNEL")
+        relatives = {"msedge": "Microsoft/Edge/Application/msedge.exe",
+                     "chrome": "Google/Chrome/Application/chrome.exe"}
+        browser = any((Path(base) / relative).is_file()
+                      for key, relative in relatives.items() if not channel or key == channel
+                      for base in (env.get("PROGRAMFILES") or env.get("ProgramFiles"),
+                                   env.get("PROGRAMFILES(X86)") or env.get("ProgramFiles(x86)")) if base)
+    module_value = env.get("AKB_PLAYWRIGHT_MODULE")
+    modules = ([_runtime_path(module_value, root)] if module_value else
+               [CODE / "node_modules/playwright", *[Path(base) / "playwright"
+                 for base in env.get("NODE_PATH", "").split(os.pathsep) if base]])
+    ffmpeg = env.get("AKB_FFMPEG", "ffmpeg")
+    ffmpeg_path = _runtime_path(ffmpeg, root)
+    if env.get("AKB_FFMPEG") and ffmpeg_path.is_dir():
+        ffmpeg = str(ffmpeg_path / ("ffmpeg.exe" if os.name == "nt" else "ffmpeg"))
+    checks = {"engine_python_matches": python_matches,
+              "node": _binary_available(env.get("AKB_NODE", "node"), root, env),
+              "ffmpeg": _binary_available(ffmpeg, root, env),
+              "browser_executable": browser,
+              "playwright_module": any((path / "package.json").is_file() for path in modules),
+              "model_files": not missing_model}
+    missing = [name for name, found in checks.items() if not found]
+    missing.extend(name for name, found in packages.items() if found is not True)
     key_name = settings["api"].get("api_key_env")
     return {"workspace": str(root), "python": sys.version.split()[0],
+            "workspace_initialized": initialized,
+            "python_tested_version": sys.version_info[:2] == (3, 12),
+            "platform_tested": sys.platform == "win32",
             "commands": {name: bool(shutil.which(name)) for name in ("git", "gh", "rg", "node", "ffmpeg")},
-            "python_packages": {name: importlib.util.find_spec(name) is not None
-                                for name in ("faster_whisper", "yt_dlp", "yt_dlp_ejs")},
-            "model_path_configured": bool(settings["engine"].get("model_path") or os.environ.get("AKB_MODEL_PATH")),
+            "python_packages": packages,
+            "runtime_checks": checks,
+            "model_path_configured": bool(model_value),
+            "model_missing_files": missing_model,
+            "video_missing": missing,
+            "capabilities": {"markdown": "available", "search": "detected" if shutil.which("rg") else "missing_ripgrep",
+                             "video": "needs_setup" if missing else "detected_not_verified"},
+            "setup_guide": str(CODE / "docs/AGENT_SETUP.md"),
             "api_configured": bool(settings["api"].get("endpoint") and settings["api"].get("model")),
             "api_key_set": bool(isinstance(key_name, str) and key_name and os.environ.get(key_name)),
             "publish_enabled": settings["publish"].get("enabled") is True,
             "gemini_video_backup": "disabled",
-            "note": "設定存在不代表平台、模型、額度或 GitHub 權限已通過真實驗證。"}
+            "note": "唯讀檢查不安裝、不下載、不啟動瀏覽器或載入模型。找到檔案不等於可用；請依首次設定指引完成實際驗證。"}
 
 
 def safe_error(exc):

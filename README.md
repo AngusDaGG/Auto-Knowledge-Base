@@ -26,12 +26,23 @@ flowchart LR
 
 ## 首次設定
 
-只整理 Markdown 時，Python 3.12 與現有 Agent 即可開始。搜尋另需 [ripgrep](https://github.com/BurntSushi/ripgrep) 的 `rg` 在 PATH。
+可以直接把 repo 連結交給可讀寫本機檔案、執行命令的 AI Agent：
+
+> 請幫我在這台電腦安裝並設定 https://github.com/AngusDaGG/Auto-Knowledge-Base 。請先讀 README、AGENTS.md 和 docs/AGENT_SETUP.md，沿用可用環境，完成依賴、模型與本機驗證；需要額外下載、費用或權限時先詢問。完成後讓我能貼影片連結整理知識。
+
+Agent 依 [首次安裝與驗證指引](docs/AGENT_SETUP.md) 接續：檢查缺項 → 集中確認必要下載與權限 → 設定本機環境／模型 → 實際驗證 → 回報可用功能與未驗證項目。使用者不必另開安裝平台、雙擊 bat 或逐條執行命令。只有網頁聊天、沒有本機工具的 Agent 無法代替你安裝；不同 Agent 仍遵守自己的權限規則。
+
+只整理 Markdown 時，Python 3.12 與現有 Agent 即可開始，無需安裝影片依賴或模型。搜尋另需 [ripgrep](https://github.com/BurntSushi/ripgrep) 的 `rg` 在 PATH。
+
+`doctor` 可在尚未初始化時唯讀檢查，不會建立工作區、安裝套件、下載模型或連線。以下命令供 Agent 執行，也可手動使用：
 
 ```powershell
+python -X utf8 -B auto_kb.py doctor
 python -X utf8 -B auto_kb.py init
 python -X utf8 -B auto_kb.py doctor
 ```
+
+`video_missing` 列出缺項；已設定 vendor 的套件會一併檢查。若 `engine.python` 另指其他 Python，套件顯示 `null`，請改用該 Python 執行 doctor。`detected_not_verified` 只代表找到工具、套件與必要模型檔案；仍須依指引做版本、載入及小型功能驗證。doctor 成功輸出報告不等於影片已可取得。
 
 預設知識庫為程式目錄下的 `workspace/`，不會加入程式 repository。要指定自己的目錄：
 
@@ -43,10 +54,10 @@ python -X utf8 -B auto_kb.py --workspace D:\MyKnowledge init
 
 影片轉錄另需：
 
-1. 安裝 Python 依賴：`python -m pip install -r requirements-transcribe.txt`。
-2. 安裝 Node 24 與已安裝的 Edge 或 Chrome，執行 `npm install --ignore-scripts` 安裝宣告的 Playwright；程式不會替你安裝瀏覽器。
-3. 安裝 FFmpeg 並加入 PATH，或設定 `AKB_FFMPEG`。
-4. 準備符合 [faster-whisper](https://github.com/SYSTRAN/faster-whisper) 格式的本機模型，將 `AKB_MODEL_PATH` 指到包含 `model.bin`、`config.json` 等檔案的目錄。模型可能很大，須依其來源及授權自行下載；執行整理不會暗中下載模型。
+1. 在專案 `.venv` 安裝 `requirements-transcribe.txt` 既有依賴；已有可用環境則沿用，不強制重裝。
+2. Node 24、Edge 或 Chrome，以及依 `package-lock.json` 安裝的 Playwright。
+3. FFmpeg 在 PATH，或透過 `AKB_FFMPEG` 指定。
+4. 符合 [faster-whisper](https://github.com/SYSTRAN/faster-whisper) 格式、包含 `model.bin`、`config.json`、`tokenizer.json` 的本機模型。Agent 先核對來源、授權、版本、下載量與硬體需求，取得必要確認後才下載；日常整理不暗中下載模型。
 
 可在自己的 `workspace/akb.json` 設定 `engine.model_path`；JSON 中 Windows 路徑使用 `/` 或跳脫的 `\\`。進階環境設定見 [engine/PORTING.md](engine/PORTING.md)。只有本機安裝的依賴及模型，不代表所有平台都能取得內容。
 
