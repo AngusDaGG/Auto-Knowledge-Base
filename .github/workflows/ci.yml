@@ -1,0 +1,35 @@
+name: CI
+on:
+  push:
+    branches: [main, 'codex/**']
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  offline-tests:
+    name: Windows offline tests
+    runs-on: windows-latest
+    timeout-minutes: 20
+    env:
+      PYTHONUTF8: '1'
+      PYTHONDONTWRITEBYTECODE: '1'
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7
+        with:
+          node-version: '24'
+          package-manager-cache: false
+      - name: Knowledge, API and publication tests
+        run: python -X utf8 -B -m unittest discover -s . -p "test_*.py"
+      - name: Transcription engine tests
+        run: python -X utf8 -B -m unittest discover -s engine -p "test_*.py"
+      - name: Browser boundary tests
+        run: npm run test:engine
+      - name: Source export checks
+        run: python -X utf8 -B release_check.py
