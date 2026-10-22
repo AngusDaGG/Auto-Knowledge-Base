@@ -134,11 +134,11 @@ python -X utf8 -B auto_kb.py search "成長實驗"
 ## 開發與授權
 
 ```powershell
-python -X utf8 -B -m unittest discover -s . -p "test_*.py"
-python -X utf8 -B -m unittest discover -s engine -p "test_*.py"
+python -X utf8 -B run_tests.py core
+python -X utf8 -B run_tests.py engine
 npm run test:engine
 ```
 
-測試不需下載影片、模型或呼叫付費 API。Git 發布測試使用本機 bare repo；HTTP 測試使用 localhost。測試資料保留在隔離暫存區，不以遞迴刪除清理。
+測試不需下載影片、模型或呼叫付費 API。runner 使用標準 unittest，先確認專案內測試區可寫，再限制 Python 網路連線；core 只允許 localhost HTTP，engine 不允許連線。Git 發布測試使用本機 bare repo。測試資料保留於 `state/test-runs/`，不以遞迴刪除清理。受限 sandbox 若禁止本機 Git 子程序，需在允許執行本機 Git 的環境驗證，不把權限失敗標成通過。
 
 版本驗收結果見 [docs/VALIDATION.md](docs/VALIDATION.md)。程式採 [MIT License](LICENSE)，第三方方法、套件與模型授權見 [engine/THIRD_PARTY_NOTICES.md](engine/THIRD_PARTY_NOTICES.md)。程式授權不授予影片或其他來源內容的使用權。

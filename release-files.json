@@ -51,6 +51,7 @@
     "release_check.py",
     "requirements-transcribe.txt",
     "run.bat",
+    "run_tests.py",
     "test_akb_api.py",
     "test_akb_cards.py",
     "test_akb_intake.py",

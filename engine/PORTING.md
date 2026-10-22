@@ -30,7 +30,7 @@ python -B engine/transcript_tool.py --workspace PATH --no-sync --model-path LOCA
 ## 驗證範圍
 
 ```powershell
-python -B -m unittest discover -s engine -p "test_*.py"
+python -B run_tests.py engine
 node --test engine/test_browser_probe.cjs engine/test_browser_config.cjs
 ```
 

@@ -26,9 +26,9 @@ jobs:
           node-version: '24'
           package-manager-cache: false
       - name: Knowledge, API and publication tests
-        run: python -X utf8 -B -m unittest discover -s . -p "test_*.py"
+        run: python -X utf8 -B run_tests.py core
       - name: Transcription engine tests
-        run: python -X utf8 -B -m unittest discover -s engine -p "test_*.py"
+        run: python -X utf8 -B run_tests.py engine
       - name: Browser boundary tests
         run: npm run test:engine
       - name: Source export checks
